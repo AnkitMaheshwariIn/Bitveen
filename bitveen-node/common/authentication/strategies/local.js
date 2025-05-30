@@ -116,91 +116,97 @@ const localStrategy = async (req, res, next) => {
         version: 'v2'
       });
       oauth2.userinfo.get(
-        function(err, res) {
-          if (err || !res.data) {
-            console.log(err);
+        function(err, googleRes) {
+          if (err || !googleRes.data) {
+            console.error('Google OAuth error:', err);
             return apiResponse.unauthorizedResponse(res, 'Invalid auth token. Please signin again.')
           } else {
-            // console.log(res);
-            verifyGLogin(res.data)
+            console.log('Google user info retrieved successfully');
+            // Pass the response object to verifyGLogin
+            verifyGLogin(googleRes.data, res, next);
           }
       });
 
 
-      const verifyGLogin = async (payload) => {
-        // query user from DB, with an email id received from Google auth
-        let user = await UserService.findUserByAggregate([
-          {
-            $match: {
-              email: payload.email
+      const verifyGLogin = async (payload, res, next) => {
+        try {
+          console.log('Verifying Google login for email:', payload.email);
+          // query user from DB, with an email id received from Google auth
+          let user = await UserService.findUserByAggregate([
+            {
+              $match: {
+                email: payload.email
+              }
+            },
+            {
+              $project: {
+                username:1,
+                uuid:1,
+                email:1,
+                admin:1,
+                isActive:1,
+                firstName:1,
+                lastName:1,
+                userImage:1
+              }
             }
-          },
-          {
-            $project: {
-              username:1,
-              uuid:1,
-              email:1,
-              admin:1,
-              isActive:1,
-              firstName:1,
-              lastName:1,
-              userImage:1
-            }
+          ]);
+          
+          user = user && user.length > 0 ? user[0] : {};
+          console.log('User found in database:', !IsEmptyObject(user));
+
+          // return 'new' if user not found with Google, new will register new user in database
+          if (IsEmptyObject(user)) {
+              console.log('Creating new user for:', payload.email);
+              // User Not found, create new user
+              const newUserObj = {
+                username: payload.email,
+                name: payload.name,
+                firstName: payload.given_name,
+                lastName: payload.family_name,
+                email: payload.email,
+                verifiedEmail: payload.verified_email,
+                locale: payload.locale,
+                userImage : {
+                  URL: payload.picture
+                },
+                socialLogin: 'Google',
+                socialLoginId: payload.id
+              }
+              let resp = await UserService.create(newUserObj);
+              if (!resp) {
+                  console.error('Failed to create new user');
+                  return apiResponse.errorResponse(res, 'Create new user failed. Please try again.');
+              } else {
+                console.log('New user created successfully');
+                res.locals.userDetails = resp[0]._doc;
+                return next();
+              }
           }
-        ]);
-        
-        user = user && user.length > 0 ? user[0] : {};
 
-        // return 'new' if user not found with Google, new will register new user in database
-        if (IsEmptyObject(user)) {
-            // User Not found, create new user
-            const newUserObj = {
-              username: payload.email,
-              name: payload.name,
-              firstName: payload.given_name,
-              lastName: payload.family_name,
-              email: payload.email,
-              verifiedEmail: payload.verified_email,
-              locale: payload.locale,
-              userImage : {
-                URL: payload.picture
-              },
-              socialLogin: 'Google',
-              socialLoginId: payload.id
-            }
-            let resp = await UserService.create(newUserObj);
-            if (!resp) {
-                apiResponse.errorResponse(res, 'Create new user failed. Please try again.')     
-            } else {
-              res.locals.userDetails = resp[0]._doc;
-              return next()
-            }
+          // return if user isActive false
+          if(!user.isActive) {
+            console.log('User account is disabled');
+            return apiResponse.unauthorizedResponse(res, 'User Has Been Disabled Contact Admin');
+          }
+
+          // Email verification is the match for Google login
+          const match = payload.email === user.email;
+          console.log('Email verification match:', match);
+          
+          if (match) {
+            console.log('User authenticated successfully');
+            res.locals.userDetails = user;
+            return next();
+          } else {
+            // This should rarely happen since we already matched by email in the query
+            console.error('Email verification failed');
+            return apiResponse.unauthorizedResponse(res, 'Authentication failed. Please try again.');
+          }
+        } catch (error) {
+          console.error('Error in Google verification:', error);
+          return apiResponse.errorResponse(res, 'Authentication error: ' + error.message);
         }
-
-        // return if user isActive false
-        if(!user.isActive) {
-          return apiResponse.unauthorizedResponse(res, 'User Has Been Disabled Contact Admin')
-        }
-
-        // decrypt incoming password
-        // var UserPass = CryptoJS.AES.decrypt(password, 'bitveen');
-        // UserPass = UserPass.toString(CryptoJS.enc.Utf8);
-
-        // // // decrypt db password
-        // var dbPass = CryptoJS.AES.decrypt(passwordHash, 'bitveen');
-        // dbPass = dbPass.toString(CryptoJS.enc.Utf8);
-
-        //const match = dbPass === UserPass
-        const match = payload.email === user.email
-        // const match = await bcrypt.compare(password, passwordHash);
-        // return if passwords match
-        if (match) {
-          res.locals.userDetails = user;
-          return next()
-        }
-        // return if no match
-        // return next(new BadRequestError('Invalid password.'))
-        return apiResponse.unauthorizedResponse(res, 'Invalid password. Please enter credentials again!')
       
       }
     } catch (error) {
