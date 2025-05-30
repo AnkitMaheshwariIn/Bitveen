@@ -1,0 +1,9 @@
+.home-page .article-box {
+    max-width: none !important;
+}
+@media (min-width: 1025px) {
+    .intro-video {
+        float: left;
+        margin: 0 30px;
+    }
+}

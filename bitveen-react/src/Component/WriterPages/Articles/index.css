@@ -1,0 +1,19 @@
+.app-title-awp {
+    margin: 8px 0px !important;
+    font-size: 1rem !important;
+    padding-left: 5% !important;
+    padding-right: 5% !important;
+    max-width: 728px !important;
+}
+.article-box {
+    width: calc(100% - 40px);
+    padding-left: 5%;
+    padding-right: 5%;
+    max-width: 728px;
+}
+.article-card {
+    display: inline-block;
+    text-align: left;
+    margin: 0px 8px 8px 0px;
+    width: 100%;
+}

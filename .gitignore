@@ -1,0 +1,71 @@
+# Global ignores
+.DS_Store
+*.log
+*.swp
+*.swo
+.idea/
+.vscode/
+
+# Node.js common ignores
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.npm
+.yarn-integrity
+.env
+.env.*
+!.env.example
+
+# bitveen-node specific ignores
+bitveen-node/logs/
+bitveen-node/node_modules/
+bitveen-node/BITVEEN/logs/
+bitveen-node/pids/
+bitveen-node/*.pid
+bitveen-node/*.seed
+bitveen-node/*.pid.lock
+bitveen-node/lib-cov/
+bitveen-node/coverage/
+bitveen-node/.nyc_output/
+bitveen-node/.npm/
+bitveen-node/.eslintcache/
+bitveen-node/.node_repl_history
+
+# bitveen-react specific ignores
+bitveen-react/node_modules/
+bitveen-react/build/
+bitveen-react/.firebase/
+bitveen-react/.env
+bitveen-react/.env.*
+bitveen-react/coverage/
+bitveen-react/npm-debug.log*
+bitveen-react/yarn-debug.log*
+bitveen-react/yarn-error.log*
+bitveen-react/.pnp/
+bitveen-react/.pnp.js
+bitveen-react/.eslintcache
+bitveen-react/.env.local
+bitveen-react/.env.development.local
+bitveen-react/.env.test.local
+bitveen-react/.env.production.local
+
+# TypeScript
+*.tsbuildinfo
+
+# Compiled output
+*.min.js
+*.min.css
+
+# Package files
+*.tgz
+
+# Certificates and keys (if any)
+*.pem
+*.key
+*.crt
+!Bitveen-Key-Pair-All-Purpose.pem
+
+# Backup files
+*.bak
+*~
