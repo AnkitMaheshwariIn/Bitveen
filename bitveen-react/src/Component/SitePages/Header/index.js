@@ -25,6 +25,8 @@ import { login, loginWithGoogle } from '../../../Service/api.service';
 import useUserToken from '../../App/useUserToken';
 import Tooltip from '@mui/material/Tooltip';
 import { googleLogout, useGoogleLogin } from '@react-oauth/google';
+import Alert from '@mui/material/Alert';
+import Snackbar from '@mui/material/Snackbar';
 
 const Search = styled('div')(({ theme }) => ({
   position: 'relative',
@@ -74,6 +76,13 @@ export const Header = () => {
 
   const [ user, setUser ] = useState([]);
   const [ profile, setProfile ] = useState([]);
+  const [ loginError, setLoginError ] = useState(null);
+  const [ showErrorAlert, setShowErrorAlert ] = useState(false);
+  
+  // Handle closing the error alert
+  const handleCloseAlert = () => {
+    setShowErrorAlert(false);
+  };
 
   const refreshPage = () => {
       navigate(0);
@@ -103,9 +112,13 @@ export const Header = () => {
 
   const onLoginWithGoogleAPI = async (profile) => {
     try {
-      console.log('profile', profile);
-      const res = await loginWithGoogle(profile)
-      console.log("user", res.data)
+      console.log('Google profile data:', profile);
+      setLoginError(null); // Clear any previous errors
+      setShowErrorAlert(false); // Hide any visible error alerts
+      
+      const res = await loginWithGoogle(profile);
+      console.log("Google login API response:", res.data);
+      
       if (res.data && res.data.data) {
         setUserToken({
           accessToken: res.data.data.accessToken,
@@ -114,9 +127,35 @@ export const Header = () => {
         });
         // reload after login
         refreshPage();
+      } else {
+        // Handle case where response doesn't contain expected data
+        console.error('Invalid response format from server:', res.data);
+        const errorMsg = 'Server returned an invalid response format';
+        setLoginError(errorMsg);
+        setShowErrorAlert(true);
       }
     } catch (error) {
-        console.log('Saving failed: ', error)
+      console.error('Google login API error:', error);
+      let errorMessage = 'Login failed';
+      
+      if (error.response) {
+        // The request was made and the server responded with a status code
+        // that falls out of the range of 2xx
+        console.error('Error response data:', error.response.data);
+        console.error('Error response status:', error.response.status);
+        errorMessage = `Server error: ${error.response.status} - ${error.response.data.message || error.response.statusText}`;
+      } else if (error.request) {
+        // The request was made but no response was received
+        console.error('Error request:', error.request);
+        errorMessage = 'No response received from server';
+      } else {
+        // Something happened in setting up the request that triggered an Error
+        console.error('Error message:', error.message);
+        errorMessage = error.message;
+      }
+      
+      setLoginError(errorMessage);
+      setShowErrorAlert(true);
     }
     handleMenuClose();
   };
@@ -124,10 +163,17 @@ export const Header = () => {
   const onGoogleLogin = useGoogleLogin({
     nonce: 'bitveen',
     onSuccess: (codeResponse) => {
-      // setUser(codeResponse)
-      onLoginWithGoogleAPI({access_token: codeResponse.access_token})
+      // Clear any previous errors
+      setLoginError(null);
+      console.log('Google login success, token:', codeResponse.access_token);
+      onLoginWithGoogleAPI({access_token: codeResponse.access_token});
     },
-    onError: (error) => console.log('Login Failed:', error)
+    onError: (error) => {
+      console.error('Google Login Failed:', error);
+      const errorMsg = 'Google login failed: ' + (error.message || 'Unknown error');
+      setLoginError(errorMsg);
+      setShowErrorAlert(true);
+    }
   })
 
   /**
@@ -366,6 +412,12 @@ export const Header = () => {
 
   return (
     <Box sx={{ flexGrow: 1 }}>
+      {/* Error Alert */}
+      <Snackbar open={showErrorAlert} autoHideDuration={6000} onClose={handleCloseAlert}>
+        <Alert onClose={handleCloseAlert} severity="error" sx={{ width: '100%' }}>
+          {loginError}
+        </Alert>
+      </Snackbar>
       <AppBar position="static" color="transparent"
         style={{
           boxShadow: '0px 2px 2px -1px rgb(0 0 0 / 20%), 0px 2px 1px 0px rgb(0 0 0 / 5%), 0px 1px 2px 0px rgb(0 0 0 / 5%)',

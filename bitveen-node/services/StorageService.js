@@ -1,20 +1,25 @@
 var AWS = require('aws-sdk');
-const {settings} = require('../conf/default.json');
-//const settings = config.get('settings');
 
-//AWS Creds
-const accessKeyId = settings.s3_access_key;
-const secretAccessKey = settings.s3_secret_key;
-const endpoint = settings.s3_endpoint;
-const bucket = settings.s3_bucket;
+// AWS Credentials from environment variables
+const accessKeyId = process.env.AWS_ACCESS_KEY_ID;
+const secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY;
+const endpoint = process.env.AWS_S3_ENDPOINT;
+const bucket = process.env.AWS_S3_BUCKET;
 
-//AWS S3 Client
+// Validate required environment variables
+if (!accessKeyId || !secretAccessKey || !bucket) {
+    console.error('ERROR: AWS credentials are required in environment variables');
+    // Don't exit the process here, just log the error
+    // The service will fail when used if credentials are missing
+}
+
+// AWS S3 Client
 const s3 = new AWS.S3({
     accessKeyId: accessKeyId,
     secretAccessKey: secretAccessKey,
     endpoint: endpoint,
     s3ForcePathStyle: true
-    //signatureVersion: 'v4'
+    // signatureVersion: 'v4'
 });
 
 class StorageService {
