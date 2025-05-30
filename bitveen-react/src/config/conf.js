@@ -1,2 +1,7 @@
-export const BASEURL = 'https://api.bitveen.com/api'
-// export const BASEURL = 'http://localhost:8000/api'
+import { environment } from './environment';
+
+// Export the base URL from the environment configuration
+export const BASEURL = environment.api.baseUrl;
+
+// Export other configuration values as needed
+export const APP_NAME = environment.app.name;
