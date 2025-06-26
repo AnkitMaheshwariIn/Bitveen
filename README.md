@@ -150,3 +150,4 @@ This project is licensed under the ISC License - see the LICENSE file for detail
 
 - [GitHub Repository](https://github.com/AnkitMaheshwariIn/Bitveen)
 - [Live Demo](https://bitveen.web.app/)
+- [Figma](https://www.figma.com/file/CEK1TcRo9VXGiOEs5I8PIt/Bitveen?type=design&node-id=661%3A2&mode=design&t=kTO6ffe9tgjAmw4o-1)
