@@ -6,6 +6,30 @@
 .idea/
 .vscode/
 
+# Sensitive files and credentials
+Bitveen-Key-Pair-All-Purpose.pem
+*.pem
+*.key
+*.crt
+*.cer
+*.der
+*.p12
+*.pfx
+*.jks
+*.keystore
+
+# Configuration files
+config/*.js
+conf/*.js
+*.conf
+*.properties
+*.yml
+*.yaml
+*.json
+!package.json
+!package-lock.json
+!yarn.lock
+
 # Node.js common ignores
 node_modules/
 npm-debug.log*
@@ -16,6 +40,27 @@ yarn-error.log*
 .env
 .env.*
 !.env.example
+
+# Database files
+*.db
+*.sql
+*.sqlite
+*.dump
+*.bak
+*.backup
+*.dat
+*.mdb
+*.accdb
+*.myd
+*.myi
+*.frm
+*.ibd
+*.frm
+*.opt
+*.trn
+*.mdf
+*.ldf
+*.ndf
 
 # bitveen-node specific ignores
 bitveen-node/logs/
