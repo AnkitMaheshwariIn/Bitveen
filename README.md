@@ -149,4 +149,4 @@ This project is licensed under the ISC License - see the LICENSE file for detail
 ## 🔗 Links
 
 - [GitHub Repository](https://github.com/AnkitMaheshwariIn/Bitveen)
-- [Live Demo](coming_soon)
+- [Live Demo](https://bitveen.web.app/)
