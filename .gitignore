@@ -5,6 +5,7 @@
 *.swo
 .idea/
 .vscode/
+bitveen-backup/
 
 # Sensitive files and credentials
 Bitveen-Key-Pair-All-Purpose.pem
